@@ -1,5 +1,5 @@
 import Controller.ControllerImpl;
-import Model.Model;
+import Model.Simulation;
 
 /*
 • Title: Lost in the Woods
@@ -23,8 +23,14 @@ import Model.Model;
 
 public class Application {
 
+    /**
+     * Main method that begins the process of setting up the three components necessary to run the simulation.
+     * This method initializes the Simulation (Model).  A Controller is created with a reference to the simulation.
+     * The controller will handle the creation of the view and starting the UI.
+     * @param args Optional command line arguments.
+     */
     public static void main(String[] args) {
-        Model model = new Model();
-        ControllerImpl controller = new ControllerImpl(model);
+        Simulation simulation = new Simulation();
+        ControllerImpl controller = new ControllerImpl(simulation);
     }
 }

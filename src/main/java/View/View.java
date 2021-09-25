@@ -13,130 +13,169 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
-import java.awt.*;
+import java.awt.Toolkit;
 
 public class View {
 
-    Controller controller;
-    Stage stage;
-    StackPane root;
-    Scene theScene;
-    Canvas gameCanvas;
-    GraphicsContext gc;
-    Button submitSize;
-    TilePane buttonPane;
-    VBox vBox1;
-    Label instructions;
-    private boolean simulationRunning;
-    private int moves = 0;
-    private TextField width;
-    private TextField height;
+    private Controller controller; //Reference to the controller instance that processes requests for the Model/Simulation
+    private Stage stage; //The window the application resides in.
+    private Scene theScene; // The scene is the main structure that
+    private StackPane root; // This is the main container for all UI elements that are added to the stage.
 
+    private VBox vBox; //Vertical Box that organizes the main UI elements vertically
+
+    private Label message; // The message displayed to users for instructions
+
+    private Button submitSize; // The button used to submit the width and height entered
+    private TextField width; // The text box to enter a width in
+    private TextField height; // The text box to enter a height in
+
+    private Canvas gameCanvas; // The canvas to draw graphics on for the simulation
+    private GraphicsContext gc; // Various commands used to draw graphics on the canvas
+
+    private boolean simulationRunning; // Flag used to determine if the simulation should continue running
+    private int moves = 0; // Count of how many moves the simulation has run for
+
+    /**
+     * Constructor for the View that requires a Controller to work
+     * @param controller
+     */
     public View(Controller controller) {
         this.controller = controller;
     }
 
-    public void start(Stage theStage) {
+    /**
+     * This method initializes the stage and sets relevant listeners and handlers for events
+     * @param theStage The main stage of the application
+     */
+    public void initialize(Stage theStage) {
         this.stage = theStage;
         createView(stage);
+
+        //The event handler for the submitSize button
         submitSize.setOnAction(e -> {
-            String widthText = width.getText();
-            String heightText = height.getText();
+            String widthText = width.getText(); //Pulls value from width textBox
+            String heightText = height.getText(); //Pulls value from height textBox
+            //If any text entry is not an integer, display an error message.  Otherwise, set up the simulation.
             if (isInt(widthText) && isInt(heightText)){
                 controller.setUp(e, Integer.parseInt(widthText), Integer.parseInt(heightText));
             } else {
-                setInstructions("Invalid Input: Please enter a width and height for the forest between 2 and 50.");
+                setMessage("Invalid Input: Please enter a width and height for the forest between 2 and 50.");
                 Toolkit.getDefaultToolkit().beep();
             }
         });
 
-        theStage.show();
+        theStage.show(); //Makes the stage visible
 
+        //This implements a loop that runs the simulation.
         new AnimationTimer()
         {
-            public void handle(long currentNanoTime)
+            public void handle(long currentNanoTime) // Implementation of the AnimationTimer's handle method
             {
-                if (moves > 10000)
+                //Stop updating the simulation if there is more than 1 million moves.
+                if (moves > 100)//TODO 1,000,000  And Stop when the people find each other.
                     setSimulationRunning(false);
-                gc.clearRect(0, 0, 512, 512);
+                gc.clearRect(0, 0, 512, 512); //The graphics context must be cleared as the original graphics persist
+                //If the simulation is running, update the model and increment the moves
                 if (simulationRunning){
                     controller.update(gc);
                     moves++;
                 }
             }
-        }.start();
+        }.start(); //Starts the animation timer
 
     }
 
     //https://stackoverflow.com/questions/5439529/determine-if-a-string-is-an-integer-in-java
-    static boolean isInt(String s)  // assuming integer is in decimal number system
+
+    /**
+     * Determines if a string is an integer.
+     * @param string String to test
+     * @return Returns true if the value is an int
+     */
+    private boolean isInt(String string)  // assuming integer is in decimal number system
     {
-        if (s.isBlank())
+        if (string.isBlank()) //Null values are not ints
             return false;
-        for(int a=0;a<s.length();a++)
-        {
-            if( !Character.isDigit(s.charAt(a)) ) return false;
+        for(int i=0;i<string.length();i++) { //Loops through each character and checks if they are digits
+            if(!Character.isDigit(string.charAt(i))) return false;
         }
         return true;
     }
 
+    /**
+     * Sets up all the UI elements displayed and used by the user.
+     * @param theStage
+     */
     public void createView(Stage theStage) {
         theStage.setTitle( "Lost in the Woods" );
         //https://www.pinclipart.com/pindetail/oTwJ_free-forest-clipart-free-forest-clipart-at-getdrawings/
         theStage.getIcons().add(new Image("forest.png"));
 
-        root = new StackPane();
+        // Creates and groups the high level components for the view
+        root = new StackPane(); // Automatically centers itself when window grows.
         theScene = new Scene(root);
         theStage.setScene(theScene);
 
+        //Creates message and sets formatting
+        message = new Label("Please enter a width and height for the forest between 2 and 50.");
+        message.setWrapText(true);
+        message.setPadding(new Insets(10,10,10,10));
+
+        //Creates canvas and retrieves graphics context
         gameCanvas = new Canvas(520, 520);
         gc = gameCanvas.getGraphicsContext2D();
 
-        submitSize = new Button("Submit");
-
-        instructions = new Label("Please enter a width and height for the forest between 2 and 50.");
-        instructions.setWrapText(true);
-        instructions.setPadding(new Insets(10,10,10,10));
-
+        //Creates labels and text boxes to gather user input for the simulation
         Label widthLabel = new Label("Width");
         width = new TextField ();
         Label heightLabel = new Label("Height");
         height = new TextField ();
 
+        //Creates submit button that will attempt to set the width and height
+        submitSize = new Button("Submit");
+
+        //Creates horizontal box that organizes and formats text boxes and submit button
         HBox input = new HBox();
         input.setSpacing(10);
         input.setPadding(new Insets(10,10,10,10));
         input.setAlignment(Pos.BOTTOM_CENTER);
         input.getChildren().addAll(widthLabel, width, heightLabel, height, submitSize);
 
+        //Creates vertical box that organizes and formats message, canvas, and input HBox.
+        vBox = new VBox(10);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.getChildren().addAll(message, gameCanvas, input);
 
-        vBox1 = new VBox(10);
-        vBox1.setAlignment(Pos.CENTER);
-        vBox1.getChildren().addAll(instructions, gameCanvas, input);
-
-        root.getChildren().addAll(vBox1);
+        //Adds all UI components to the root (Stackpane)
+        root.getChildren().addAll(vBox);
 
     }
 
+    /**
+     * Setter for simulationRunning
+     * @param running true -> running
+     */
     public void setSimulationRunning(boolean running){
         simulationRunning = running;
     }
 
-    public void setInstructions(String instructions) {
-        this.instructions.setText(instructions);
+    /**
+     * Setter for message
+     * @param message Message to display in the message label
+     */
+    public void setMessage(String message) {
+        this.message.setText(message);
     }
 
+    /**
+     * Getter for graphicsContext
+     */
     public GraphicsContext getGc() {
         return gc;
-    }
-
-    public void setGc(GraphicsContext gc) {
-        this.gc = gc;
     }
 
 }
