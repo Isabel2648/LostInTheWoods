@@ -11,9 +11,11 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
 import java.awt.Toolkit;
@@ -25,7 +27,7 @@ public class View {
     private Scene theScene; // The scene is the main structure that
     private StackPane root; // This is the main container for all UI elements that are added to the stage.
 
-    private VBox vBox; //Vertical Box that organizes the main UI elements vertically
+    private VBox simulationArea; //Vertical Box that organizes the main UI elements vertically
 
     private Label message; // The message displayed to users for instructions
 
@@ -37,7 +39,6 @@ public class View {
     private GraphicsContext gc; // Various commands used to draw graphics on the canvas
 
     private boolean simulationRunning; // Flag used to determine if the simulation should continue running
-    private int moves = 0; // Count of how many moves the simulation has run for
 
     /**
      * Constructor for the View that requires a Controller to work
@@ -55,14 +56,34 @@ public class View {
         this.stage = theStage;
         createView(stage);
 
+        width.setOnKeyPressed(keyEvent -> {
+            if(keyEvent.getCode() == KeyCode.ENTER)
+                height.requestFocus();
+        } );
+
+        height.setOnKeyPressed(keyEvent -> {
+            if(keyEvent.getCode() == KeyCode.ENTER)
+                submitSize.requestFocus();
+        } );
+
+        //TODO Enter Key Bug with Button
+        theScene.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER && !submitSize.isFocused()) {
+                simulationRunning = !simulationRunning;
+                gc.fillText("Simulation Paused", 255, 200);
+            }
+        });
+
         //The event handler for the submitSize button
         submitSize.setOnAction(e -> {
             String widthText = width.getText(); //Pulls value from width textBox
             String heightText = height.getText(); //Pulls value from height textBox
             //If any text entry is not an integer, display an error message.  Otherwise, set up the simulation.
-            if (isInt(widthText) && isInt(heightText)){
-                controller.setUp(e, Integer.parseInt(widthText), Integer.parseInt(heightText));
-                moves = 0;
+            if (isInt(widthText)
+                    && isInt(heightText)
+                    && controller.setUp(e, Integer.parseInt(widthText), Integer.parseInt(heightText))){
+                gc.clearRect(0,0,520,520);
+                gameCanvas.requestFocus();
             } else {
                 setMessage("Invalid Input: Please enter a width and height for the forest between 2 and 50.");
                 Toolkit.getDefaultToolkit().beep();
@@ -76,21 +97,12 @@ public class View {
         {
             public void handle(long currentNanoTime) // Implementation of the AnimationTimer's handle method
             {
-                if (currentNanoTime %1000 ==0) {
-
-                //Stop updating the simulation if there is more than 1 million moves.
-                if (moves > 100) {//TODO 1,000,000  And Stop when the people find each other.
-                    setSimulationRunning(false);
-                    setMessage("Sorry out of moves");
-                }
-
-                //If the simulation is running, update the model and increment the moves
-                if (simulationRunning) {
-                    gc.clearRect(0, 0, 520, 520); //The graphics context must be cleared as the original graphics persist
-                    controller.update(gc);
-                    moves++;
-                }
-
+                if (currentNanoTime % 1 ==0) { //Mod allows the simulation to slow down.  Higher numbers slow it down
+                    //If the simulation is running, clear the graphics context and then update the simulation
+                    if (simulationRunning) {
+                        gc.clearRect(0, 0, 520, 520); //The graphics context must be cleared as the original graphics persist
+                        controller.update(gc);
+                    }
                 }
             }
         }.start(); //Starts the animation timer
@@ -128,10 +140,14 @@ public class View {
         theScene = new Scene(root);
         theStage.setScene(theScene);
 
+        //TODO Labels do not have scroll bars.  Find an element that would let the user scroll for long results sections.
         //Creates message and sets formatting
-        message = new Label("Please enter a width and height for the forest between 2 and 50.");
+        message = new Label("Please enter any width and height for the forest from 2 to 50. This will set the size " +
+                "of a forest that two people will randomly wander until they find each other or run out of moves.");
         message.setWrapText(true);
+        message.setMaxSize(500, 700);
         message.setPadding(new Insets(10,10,10,10));
+        message.setAlignment(Pos.TOP_CENTER);
 
         //Creates canvas and retrieves graphics context
         gameCanvas = new Canvas(520, 520);
@@ -154,12 +170,16 @@ public class View {
         input.getChildren().addAll(widthLabel, width, heightLabel, height, submitSize);
 
         //Creates vertical box that organizes and formats message, canvas, and input HBox.
-        vBox = new VBox(10);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.getChildren().addAll(message, gameCanvas, input);
+        simulationArea = new VBox(10);
+        simulationArea.setAlignment(Pos.CENTER);
+        simulationArea.getChildren().addAll(gameCanvas, input);
+
+        HBox displayArea = new HBox();
+        displayArea.setAlignment(Pos.CENTER);
+        displayArea.getChildren().addAll(simulationArea, message);
 
         //Adds all UI components to the root (Stackpane)
-        root.getChildren().addAll(vBox);
+        root.getChildren().addAll(displayArea);
 
     }
 

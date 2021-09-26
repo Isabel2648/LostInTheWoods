@@ -28,12 +28,11 @@ public class ControllerImpl implements Controller{
                 ex.printStackTrace();
             }
         });
-
     }
 
-
     /**
-     * The method lets the simulation know to update the data to draw the components
+     * The method lets the simulation know to update the data and draw the components.
+     * It also sets the message to display relevant information when the simulation is finished.
      * @param gc A reference to the graphics context in the view to draw model components on
      */
     @Override
@@ -54,15 +53,16 @@ public class ControllerImpl implements Controller{
      * @param height The height entered for the forest
      */
     @Override
-    public void setUp(ActionEvent event, int width, int height) {
-        if (simulation.setup(width,height)){
+    public boolean setUp(ActionEvent event, int width, int height) {
+        boolean validInput = simulation.setup(width,height);
+        if (validInput){
+            simulation.draw(view.getGc()); // Draw the simulation before it starts running
             view.setSimulationRunning(true);
             view.setMessage("People are wandering in the woods.  How long will it take for them to find each other");
-        } else {
-            view.setMessage("Invalid Input: Please enter a width and height between 2 and 50.");
-            view.setSimulationRunning(false);
         }
+        return validInput;
     }
 
+    //TODO Should move event handlers to this class from the view.
 
 }
