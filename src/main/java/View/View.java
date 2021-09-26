@@ -62,6 +62,7 @@ public class View {
             //If any text entry is not an integer, display an error message.  Otherwise, set up the simulation.
             if (isInt(widthText) && isInt(heightText)){
                 controller.setUp(e, Integer.parseInt(widthText), Integer.parseInt(heightText));
+                moves = 0;
             } else {
                 setMessage("Invalid Input: Please enter a width and height for the forest between 2 and 50.");
                 Toolkit.getDefaultToolkit().beep();
@@ -75,14 +76,21 @@ public class View {
         {
             public void handle(long currentNanoTime) // Implementation of the AnimationTimer's handle method
             {
+                if (currentNanoTime %1000 ==0) {
+
                 //Stop updating the simulation if there is more than 1 million moves.
-                if (moves > 100)//TODO 1,000,000  And Stop when the people find each other.
+                if (moves > 100) {//TODO 1,000,000  And Stop when the people find each other.
                     setSimulationRunning(false);
-                gc.clearRect(0, 0, 512, 512); //The graphics context must be cleared as the original graphics persist
+                    setMessage("Sorry out of moves");
+                }
+
                 //If the simulation is running, update the model and increment the moves
-                if (simulationRunning){
+                if (simulationRunning) {
+                    gc.clearRect(0, 0, 520, 520); //The graphics context must be cleared as the original graphics persist
                     controller.update(gc);
                     moves++;
+                }
+
                 }
             }
         }.start(); //Starts the animation timer

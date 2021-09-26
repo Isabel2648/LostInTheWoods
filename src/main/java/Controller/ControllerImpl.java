@@ -38,7 +38,11 @@ public class ControllerImpl implements Controller{
      */
     @Override
     public void update(GraphicsContext gc) {
-        simulation.update(gc);
+        String message = simulation.update(gc);
+        if (message != null) {
+            view.setMessage(message);
+            view.setSimulationRunning(false);
+        }
     }
 
     /**

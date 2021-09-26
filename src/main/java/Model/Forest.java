@@ -120,4 +120,19 @@ public class Forest implements Draw {
         }
     }
 
+    public int getPaddingX() {
+        return paddingX;
+    }
+
+    public void setPaddingX(int paddingX) {
+        this.paddingX = paddingX;
+    }
+
+    public int getPaddingY() {
+        return paddingY;
+    }
+
+    public void setPaddingY(int paddingY) {
+        this.paddingY = paddingY;
+    }
 }

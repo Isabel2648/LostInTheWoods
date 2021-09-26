@@ -8,7 +8,7 @@ import java.util.List;
 public class Simulation {
 
     private Forest forest; //Reference to the Forest in the simulation
-    private List<Person> persons; //Reference to a list of people in the simulation that will wander.
+    private List<BallPerson> ballPersons; //Reference to a list of people in the simulation that will wander.
 
     /**
      * The constructor for the simulation.  This creates the necessary elements in the simulation (A forest and a list of
@@ -16,11 +16,11 @@ public class Simulation {
      */
     public Simulation(){
         forest = new Forest();
-        Person person1 = new Person();
-        Person person2 = new Person();
-        persons = new ArrayList<>();
-        persons.add(person1);
-        persons.add(person2);
+        BallPerson ballPerson1 = new BallPerson(0,-1, forest); //Starting positions
+        BallPerson ballPerson2 = new BallPerson(1, 1, forest);
+        ballPersons = new ArrayList<>();
+        ballPersons.add(ballPerson1);
+        ballPersons.add(ballPerson2);
     }
 
     /**
@@ -30,19 +30,31 @@ public class Simulation {
      * @return boolean representing valid input. true -> valid input
      */
     public boolean setup(int width, int height){
-        return forest.setForestSize(width, height);
+        boolean validInput = forest.setForestSize(width, height);
+
+        if (validInput) {
+            ballPersons.get(1).setX(forest.getWidth()-1);
+            ballPersons.get(1).setY(forest.getHeight()-1);
+            ballPersons.get(0).setX(0);
+            ballPersons.get(0).setY(-1);
+        }
+        return validInput;
     }
 
     /**
      * Moves the people and draws model components based on new data
      * @param gc
      */
-    public void update(GraphicsContext gc) {
+    public String update(GraphicsContext gc) {
         forest.draw(gc);//Forest should be drawn first as it is the bottom layer
-//        persons.forEach(person -> {
-//            person.move()); // Each person moves
-//            person.paint(); // Each person draws itself
-//        }
+        ballPersons.forEach(ballPerson -> {
+            ballPerson.move(); // Each person moves
+            ballPerson.draw(gc); // Each person draws itself
+        });
+        if (ballPersons.get(0).getX() == ballPersons.get(1).getX())
+            if (ballPersons.get(0).getY() == ballPersons.get(1).getY()) {
+                return "They found each other!";
+            }
+        return null;
     }
-
 }
