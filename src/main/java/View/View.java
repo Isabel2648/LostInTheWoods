@@ -39,6 +39,7 @@ public class View {
     private GraphicsContext gc; // Various commands used to draw graphics on the canvas
 
     private boolean simulationRunning; // Flag used to determine if the simulation should continue running
+    private boolean simulationPaused; // Flag used to determine if a running simulation is paused.
 
     /**
      * Constructor for the View that requires a Controller to work
@@ -56,21 +57,11 @@ public class View {
         this.stage = theStage;
         createView(stage);
 
-        width.setOnKeyPressed(keyEvent -> {
-            if(keyEvent.getCode() == KeyCode.ENTER)
-                height.requestFocus();
-        } );
-
-        height.setOnKeyPressed(keyEvent -> {
-            if(keyEvent.getCode() == KeyCode.ENTER)
-                submitSize.requestFocus();
-        } );
-
-        //TODO Enter Key Bug with Button
+        //Pauses the simulation only if the simulation is running and the enter key is pressed.
         theScene.setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.ENTER && !submitSize.isFocused()) {
-                simulationRunning = !simulationRunning;
-                gc.fillText("Simulation Paused", 255, 200);
+            if (keyEvent.getCode() == KeyCode.ENTER && simulationRunning) {
+                simulationPaused = !simulationPaused;
+                gc.fillText("Simulation Paused", 200, 200);
             }
         });
 
@@ -99,7 +90,7 @@ public class View {
             {
                 if (currentNanoTime % 1 ==0) { //Mod allows the simulation to slow down.  Higher numbers slow it down
                     //If the simulation is running, clear the graphics context and then update the simulation
-                    if (simulationRunning) {
+                    if (simulationRunning && !simulationPaused) {
                         gc.clearRect(0, 0, 520, 520); //The graphics context must be cleared as the original graphics persist
                         controller.update(gc);
                     }
@@ -120,7 +111,8 @@ public class View {
     {
         if (string.isBlank()) //Null values are not ints
             return false;
-        for(int i=0;i<string.length();i++) { //Loops through each character and checks if they are digits
+        //Loops through each character and checks if they are digits
+        for(int i=0;i<string.length();i++) {
             if(!Character.isDigit(string.charAt(i))) return false;
         }
         return true;

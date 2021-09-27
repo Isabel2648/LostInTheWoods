@@ -113,6 +113,7 @@ public class Forest implements Draw {
     @Override
     public void draw(GraphicsContext gc) {
         gc.setFill(Color.BLACK);
+        //Loops through each cell in a row from left to right before going down the next column.  Draws a box at each cell.
         for (int row = 0; row < height; row++){
             for (int column = 0; column < width; column++){
                 gc.strokeRect(paddingX + column * cellSize, paddingY + row * cellSize, cellSize, cellSize);

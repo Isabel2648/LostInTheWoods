@@ -1,6 +1,7 @@
 package Model;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 import java.util.*;
 
@@ -13,7 +14,7 @@ public class Simulation {
     private Forest forest; //Reference to the Forest in the simulation
     private List<BallPerson> ballPersons; //Reference to a list of people in the simulation that will wander.
     private Map<Integer, SimulationResult> results; //Summary of previous simulation results.
-    private int moves; //Tracks how many moves the simulation has gone through.  Used to stop simulation at a designated amoun
+    private int moves; //Tracks how many moves the simulation has gone through.  Used to stop simulation at a designated amount
     private static final int MAXMOVES = 1000000; //Represents the number of maximum moves the simulation can run for.
 
     /**
@@ -22,9 +23,9 @@ public class Simulation {
      */
     public Simulation(){
         forest = new Forest();
-        BallPerson ballPerson1 = new BallPerson(0,0, forest); //Starting positions
-        BallPerson ballPerson2 = new BallPerson(1, 1, forest);
-        ballPersons = new ArrayList<>(); //Array list is used to referen
+        BallPerson ballPerson1 = new BallPerson(0,0, forest, Color.RED); //Sets the first person's position and color
+        BallPerson ballPerson2 = new BallPerson(1, 1, forest, Color.GREEN); // Sets the second person's position and color
+        ballPersons = new ArrayList<>(); //Array list is used to reference
         ballPersons.add(ballPerson1);
         ballPersons.add(ballPerson2);
         this.results = new TreeMap<>(); //Tree maps return values in the order of the key (Integer area)
@@ -98,6 +99,7 @@ public class Simulation {
      * Used to move each person (or attempt to move since they won't move if they go out of the forest)
      */
     private void move(){
+        //Loops through the people and moves them.
         ballPersons.forEach(ballPerson -> {
             ballPerson.move(); // Each person attempts to move
         });
@@ -109,6 +111,7 @@ public class Simulation {
      */
     public void draw(GraphicsContext gc){
         forest.draw(gc);//Forest should be drawn first as it is the bottom layer
+        //Loops through the people and draws them
         ballPersons.forEach(ballPerson -> {
             ballPerson.draw(gc); // Each person draws itself
         });
@@ -140,6 +143,7 @@ public class Simulation {
     public String getResults (){
         StringBuilder resultsBuilder = new StringBuilder(); //Used to construct string message
         Collection<SimulationResult> collectionResults = results.values(); //Gets a collection to iterate over
+        //Loops through all results and prints the summary for them.
         for (SimulationResult result : collectionResults) {
             resultsBuilder.append(result + "\n");  //Each result summary is displayed on its own line.
         }

@@ -4,6 +4,8 @@ import Model.Simulation;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import View.View;
 
