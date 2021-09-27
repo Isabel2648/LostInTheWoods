@@ -23,7 +23,7 @@ import Model.Simulation;
     - Isabel Flores (isabelyflores@lewisu.edu)
     - Justin Keller (justinakeller@lewisu.edu)
 • Course: CPSC 605000 Section 001
-• Date Finished and Submitted: September 26, 2021
+• Date Finished and Submitted:
  */
 
 public class Application {
