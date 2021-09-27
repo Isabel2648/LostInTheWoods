@@ -1,6 +1,7 @@
 package Model;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 import java.util.*;
 
@@ -13,7 +14,7 @@ public class Simulation {
     private Forest forest; //Reference to the Forest in the simulation
     private List<BallPerson> ballPersons; //Reference to a list of people in the simulation that will wander.
     private Map<Integer, SimulationResult> results; //Summary of previous simulation results.
-    private int moves; //Tracks how many moves the simulation has gone through.  Used to stop simulation at a designated amoun
+    private int moves; //Tracks how many moves the simulation has gone through.  Used to stop simulation at a designated amount
     private static final int MAXMOVES = 1000000; //Represents the number of maximum moves the simulation can run for.
 
     /**
@@ -22,9 +23,9 @@ public class Simulation {
      */
     public Simulation(){
         forest = new Forest();
-        BallPerson ballPerson1 = new BallPerson(0,0, forest); //Starting positions
-        BallPerson ballPerson2 = new BallPerson(1, 1, forest);
-        ballPersons = new ArrayList<>(); //Array list is used to referen
+        BallPerson ballPerson1 = new BallPerson(0,0, forest, Color.RED); //Sets the first person's position and color
+        BallPerson ballPerson2 = new BallPerson(1, 1, forest, Color.GREEN); // Sets the second person's position and color
+        ballPersons = new ArrayList<>(); //Array list is used to reference
         ballPersons.add(ballPerson1);
         ballPersons.add(ballPerson2);
         this.results = new TreeMap<>(); //Tree maps return values in the order of the key (Integer area)
